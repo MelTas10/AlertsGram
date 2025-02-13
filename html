@@ -10,7 +10,7 @@
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #0088cc, #005f8c);
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -25,6 +25,8 @@
             border-radius: 15px;
             backdrop-filter: blur(10px);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 20px;
         }
 
         .logo {
@@ -32,6 +34,7 @@
             font-weight: bold;
             margin-bottom: 20px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            animation: float 3s ease-in-out infinite;
         }
 
         .subtitle {
@@ -64,6 +67,7 @@
             display: flex;
             gap: 20px;
             justify-content: center;
+            flex-wrap: wrap;
         }
 
         .feature {
@@ -71,6 +75,11 @@
             padding: 20px;
             border-radius: 10px;
             width: 200px;
+            transition: transform 0.2s;
+        }
+
+        .feature:hover {
+            transform: translateY(-5px);
         }
 
         .feature-icon {
@@ -84,8 +93,16 @@
             100% { transform: translateY(0px); }
         }
 
-        .logo {
-            animation: float 3s ease-in-out infinite;
+        @media (max-width: 768px) {
+            .features {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .feature {
+                width: 100%;
+                max-width: 300px;
+            }
         }
     </style>
 </head>
