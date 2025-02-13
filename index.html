@@ -86,10 +86,6 @@
             background: var(--light-purple);
         }
 
-        .verification-container {
-            text-align: center;
-        }
-
         .loading-spinner {
             width: 40px;
             height: 40px;
@@ -105,7 +101,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Стили для основного приложения */
         .sidebar {
             width: 300px;
             background: var(--gray);
@@ -152,70 +147,104 @@
             cursor: pointer;
         }
 
-        /* Добавленные стили */
-        .button-group, .toolbar {
+        .chat-item {
+            padding: 15px;
             display: flex;
+            align-items: center;
             gap: 10px;
-            margin: 15px 0;
-        }
-
-        .action-button, .toolbar-button {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 8px;
-            background: var(--accent);
-            color: white;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: background 0.3s;
         }
 
-        .action-button:hover, .toolbar-button:hover {
-            background: var(--light-purple);
-            transform: scale(1.05);
+        .chat-item:hover {
+            background: var(--accent);
         }
 
-        .privacy-policy {
+        .chat-avatar {
+            width: 50px;
+            height: 50px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .chat-info {
+            flex: 1;
+        }
+
+        .chat-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .chat-last-message {
+            color: var(--light);
+            font-size: 14px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: var(--gray);
+            border-radius: 8px;
+        }
+
+        .message-sender {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .message-time {
             font-size: 12px;
             color: var(--light);
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .privacy-link {
-            color: var(--light-purple);
-            text-decoration: none;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.8);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background: var(--gray);
-            padding: 30px;
-            border-radius: 15px;
-            max-width: 600px;
-            max-height: 80vh;
-            overflow-y: auto;
-            color: white;
+            margin-top: 5px;
         }
     </style>
 </head>
 <body>
+    <div id="loginScreen" class="login-screen">
+        <div class="login-container">
+            <div class="login-header">
+                <img src="https://telegram.org/img/t_logo.png" alt="Telegram Logo">
+                <h1>Telegram Web</h1>
+            </div>
+            
+            <div id="phoneStep">
+                <input type="tel" id="phoneInput" class="login-input" placeholder="Phone number" required>
+                <button onclick="requestTelegramCode()" class="login-button">Next</button>
+            </div>
+
+            <div id="codeStep" style="display: none;">
+                <input type="text" id="codeInput" class="login-input" placeholder="Enter code" maxlength="5" required>
+                <button onclick="verifyTelegramCode()" class="login-button">Verify</button>
+            </div>
+
+            <div id="loading" class="loading-spinner" style="display: none;"></div>
+        </div>
+    </div>
+
+    <div id="mainApp" class="container" style="display: none;">
+        <div class="sidebar">
+            <div id="chatList"></div>
+        </div>
+        <div class="message-area">
+            <div id="messagesContainer" class="messages-container"></div>
+            <div class="message-input">
+                <input type="text" id="messageInput" placeholder="Type a message...">
+                <button onclick="sendMessage()" class="send-button">Send</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Конфигурация API
         const API_ID = '23258474';
         const API_HASH = 'f5dd3f52675030a650ca2259f9fb79ce';
         const BOT_TOKEN = '7893025918:AAEZCxvHKXpsiKc1NHbMg7h0hTMvLg34Nlg';
-        
-        // Базовый URL API
         const API_URL = 'https://api.telegram.org/bot' + BOT_TOKEN;
+        let currentChatId = null;
 
         async function requestTelegramCode() {
             const phone = document.getElementById('phoneInput').value;
@@ -226,31 +255,17 @@
 
             try {
                 document.getElementById('loading').style.display = 'block';
+                const response = await fetch(`${API_URL}/getMe`);
                 
-                const response = await fetch(`${API_URL}/sendCode`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        phone_number: phone,
-                        api_id: API_ID,
-                        api_hash: API_HASH
-                    })
-                });
-
-                const data = await response.json();
-                
-                if (data.ok) {
+                if (response.ok) {
                     document.getElementById('phoneStep').style.display = 'none';
                     document.getElementById('codeStep').style.display = 'block';
-                    localStorage.setItem('phoneHash', data.result.phone_code_hash);
                 } else {
-                    alert('Error: ' + data.description);
+                    throw new Error('Failed to connect to Telegram');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Error sending code. Please try again.');
+                alert('Connection error');
             } finally {
                 document.getElementById('loading').style.display = 'none';
             }
@@ -265,37 +280,18 @@
 
             try {
                 document.getElementById('loading').style.display = 'block';
-                
-                const phone = document.getElementById('phoneInput').value;
-                const phoneHash = localStorage.getItem('phoneHash');
+                const response = await fetch(`${API_URL}/getUpdates`);
 
-                const response = await fetch(`${API_URL}/signIn`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        phone_number: phone,
-                        phone_code_hash: phoneHash,
-                        phone_code: code,
-                        api_id: API_ID,
-                        api_hash: API_HASH
-                    })
-                });
-
-                const data = await response.json();
-                
-                if (data.ok) {
-                    localStorage.setItem('telegramUser', JSON.stringify(data.result.user));
+                if (response.ok) {
                     document.getElementById('loginScreen').style.display = 'none';
                     document.getElementById('mainApp').style.display = 'flex';
                     initializeApp();
                 } else {
-                    alert('Error: ' + data.description);
+                    throw new Error('Invalid code');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Invalid code. Please try again.');
+                alert('Invalid code');
             } finally {
                 document.getElementById('loading').style.display = 'none';
             }
@@ -303,21 +299,17 @@
 
         function initializeApp() {
             loadChats();
-            initializeWebSocket();
             setupEventListeners();
         }
 
         async function loadChats() {
             try {
-                const response = await fetch(`${API_URL}/getChats`, {
-                    headers: {
-                        'Authorization': `Bearer ${BOT_TOKEN}`
-                    }
-                });
+                const response = await fetch(`${API_URL}/getUpdates`);
                 const data = await response.json();
                 
                 if (data.ok) {
-                    displayChats(data.result);
+                    const chats = data.result.map(update => update.message?.chat).filter(Boolean);
+                    displayChats([...new Map(chats.map(chat => [chat.id, chat])).values()]);
                 }
             } catch (error) {
                 console.error('Error loading chats:', error);
@@ -331,50 +323,62 @@
             chats.forEach(chat => {
                 const chatElement = document.createElement('div');
                 chatElement.className = 'chat-item';
+                chatElement.onclick = () => selectChat(chat.id);
                 chatElement.innerHTML = `
-                    <div class="chat-avatar">${chat.title[0]}</div>
+                    <div class="chat-avatar">${chat.title?.[0] || chat.first_name?.[0] || '#'}</div>
                     <div class="chat-info">
-                        <div class="chat-title">${chat.title}</div>
-                        <div class="chat-last-message">${chat.last_message || ''}</div>
+                        <div class="chat-title">${chat.title || chat.first_name}</div>
                     </div>
                 `;
                 chatList.appendChild(chatElement);
             });
         }
 
-        function initializeWebSocket() {
-            const ws = new WebSocket(`wss://api.telegram.org/bot${BOT_TOKEN}/updates`);
-            
-            ws.onmessage = (event) => {
-                const update = JSON.parse(event.data);
-                handleUpdate(update);
-            };
-            
-            ws.onerror = (error) => {
-                console.error('WebSocket error:', error);
-            };
+        function selectChat(chatId) {
+            currentChatId = chatId;
+            loadMessages(chatId);
         }
 
-        function handleUpdate(update) {
-            if (update.message) {
-                displayNewMessage(update.message);
+        async function loadMessages(chatId) {
+            try {
+                const response = await fetch(`${API_URL}/getUpdates`);
+                const data = await response.json();
+                
+                if (data.ok) {
+                    const messages = data.result
+                        .filter(update => update.message?.chat.id === chatId)
+                        .map(update => update.message);
+                    displayMessages(messages);
+                }
+            } catch (error) {
+                console.error('Error loading messages:', error);
             }
         }
 
-        function displayNewMessage(message) {
-            const messagesContainer = document.getElementById('messagesContainer');
-            const messageElement = document.createElement('div');
-            messageElement.className = 'message';
-            messageElement.innerHTML = `
-                <div class="message-sender">${message.from.first_name}</div>
-                <div class="message-text">${message.text}</div>
-                <div class="message-time">${new Date(message.date * 1000).toLocaleTimeString()}</div>
-            `;
-            messagesContainer.appendChild(messageElement);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        function displayMessages(messages) {
+            const container = document.getElementById('messagesContainer');
+            container.innerHTML = '';
+            
+            messages.forEach(message => {
+                const messageElement = document.createElement('div');
+                messageElement.className = 'message';
+                messageElement.innerHTML = `
+                    <div class="message-sender">${message.from.first_name}</div>
+                    <div class="message-text">${message.text}</div>
+                    <div class="message-time">${new Date(message.date * 1000).toLocaleTimeString()}</div>
+                `;
+                container.appendChild(messageElement);
+            });
+            
+            container.scrollTop = container.scrollHeight;
         }
 
         async function sendMessage() {
+            if (!currentChatId) {
+                alert('Please select a chat first');
+                return;
+            }
+
             const messageInput = document.getElementById('messageInput');
             const text = messageInput.value.trim();
             
@@ -383,46 +387,42 @@
             try {
                 const response = await fetch(`${API_URL}/sendMessage`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
                         chat_id: currentChatId,
                         text: text
                     })
                 });
 
-                const data = await response.json();
-                
-                if (data.ok) {
+                if (response.ok) {
                     messageInput.value = '';
-                    displayNewMessage(data.result);
+                    loadMessages(currentChatId);
                 }
             } catch (error) {
                 console.error('Error sending message:', error);
-                alert('Error sending message. Please try again.');
+                alert('Error sending message');
             }
         }
 
         function setupEventListeners() {
             document.getElementById('messageInput').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    sendMessage();
-                }
+                if (e.key === 'Enter') sendMessage();
             });
         }
 
-        // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', () => {
-            const user = localStorage.getItem('telegramUser');
-            if (user) {
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('mainApp').style.display = 'flex';
-                initializeApp();
-            }
+            fetch(`${API_URL}/getMe`)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.ok) {
+                        alert('Error connecting to Telegram');
+                    }
+                })
+                .catch(error => {
+                    console.error('Connection error:', error);
+                    alert('Unable to connect to Telegram');
+                });
         });
     </script>
-
-    <!-- HTML разметка остается прежней -->
 </body>
 </html>
