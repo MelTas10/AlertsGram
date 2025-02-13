@@ -6,90 +6,263 @@
     <title>Telegram Web</title>
     <style>
         :root {
-            --dark: #17212b;
-            --gray: #242f3d;
-            --light: #aaa;
-            --accent: #2b5278;
-            --light-purple: #8774e1;
-            --dark-purple: #4b367c;
+            --primary: #8e44ad;
+            --secondary: #9b59b6; 
+            --accent: #a569bd;
+            --light-purple: #d2b4de;
+            --dark-purple: #6c3483;
+            --gray: #34495e;
+            --light: #ecf0f1;
+        }
+
+        @keyframes fadeIn {
+            from {opacity: 0;}
+            to {opacity: 1;}
+        }
+
+        @keyframes slideIn {
+            from {transform: translateY(20px);}
+            to {transform: translateY(0);}
+        }
+
+        @keyframes pulse {
+            0% {transform: scale(1);}
+            50% {transform: scale(1.05);}
+            100% {transform: scale(1);}
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            transition: all 0.3s ease;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: var(--dark);
-            color: white;
+            font-family: -apple-system, system-ui, BlinkMacSystemFont;
+            background: linear-gradient(135deg, var(--dark-purple), var(--gray));
             height: 100vh;
+            animation: fadeIn 0.5s;
         }
 
         .container {
             display: flex;
             height: 100vh;
+            backdrop-filter: blur(10px);
+        }
+
+        .sidebar {
+            width: 350px;
+            background: rgba(52, 73, 94, 0.9);
+            border-right: 1px solid var(--light-purple);
+            animation: slideIn 0.5s;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .search-box {
+            padding: 15px;
+            background: rgba(44, 62, 80, 0.8);
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 25px;
+            border: 2px solid var(--light-purple);
+            background: rgba(236, 240, 241, 0.9);
+            transition: all 0.3s;
+        }
+
+        .search-box input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(165, 105, 189, 0.3);
+        }
+
+        .chat-list {
+            overflow-y: auto;
+            height: calc(100vh - 140px);
+        }
+
+        .chat-item {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(165, 105, 189, 0.2);
+            cursor: pointer;
+        }
+
+        .chat-item:hover {
+            background: rgba(155, 89, 182, 0.2);
+            transform: translateX(5px);
+        }
+
+        .chat-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 15px;
+            background: var(--accent);
+            animation: pulse 2s infinite;
+        }
+
+        .chat-info {
+            flex: 1;
+            color: white;
+        }
+
+        .message-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(44, 62, 80, 0.95);
+        }
+
+        .messages-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 12px 18px;
+            margin: 5px;
+            border-radius: 20px;
+            color: white;
+            animation: slideIn 0.3s;
+        }
+
+        .message.received {
+            background: var(--secondary);
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+
+        .message.sent {
+            background: var(--primary);
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message-input {
+            padding: 20px;
+            background: rgba(52, 73, 94, 0.9);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .message-input input {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(236, 240, 241, 0.9);
+            font-size: 16px;
+        }
+
+        .send-button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            background: var(--accent);
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .send-button:hover {
+            background: var(--dark-purple);
+            transform: scale(1.05);
         }
 
         .login-screen {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, var(--dark-purple), var(--gray));
             display: flex;
-            justify-content: center;
             align-items: center;
-            height: 100vh;
-            background: var(--dark);
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.5s;
         }
 
         .login-container {
-            background: var(--gray);
-            padding: 30px;
-            border-radius: 15px;
-            width: 100%;
-            max-width: 400px;
+            background: rgba(52, 73, 94, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            animation: slideIn 0.5s;
         }
 
         .login-header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            color: white;
         }
 
         .login-header img {
-            width: 100px;
-            height: 100px;
-            margin-bottom: 10px;
+            width: 80px;
+            margin-bottom: 15px;
+            animation: pulse 2s infinite;
         }
 
         .login-input {
             width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: none;
-            border-radius: 8px;
-            background: var(--dark);
-            color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 2px solid var(--light-purple);
+            border-radius: 12px;
+            background: rgba(236, 240, 241, 0.9);
             font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .login-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(165, 105, 189, 0.4);
         }
 
         .login-button {
             width: 100%;
-            padding: 12px;
+            padding: 15px;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             background: var(--accent);
             color: white;
             font-size: 16px;
+            font-weight: bold;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.3s;
         }
 
         .login-button:hover {
-            background: var(--light-purple);
+            background: var(--dark-purple);
+            transform: translateY(-2px);
+        }
+
+        .verification-container {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--light-purple);
+            animation: slideIn 0.5s;
         }
 
         .loading-spinner {
             width: 40px;
             height: 40px;
-            border: 4px solid var(--light);
+            border: 4px solid var(--light-purple);
             border-top: 4px solid var(--accent);
             border-radius: 50%;
             animation: spin 1s linear infinite;
@@ -101,171 +274,81 @@
             100% { transform: rotate(360deg); }
         }
 
-        .sidebar {
-            width: 300px;
-            background: var(--gray);
-            border-right: 1px solid var(--accent);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .message-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: var(--dark);
-        }
-
-        .messages-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-        }
-
-        .message-input {
-            padding: 20px;
-            background: var(--gray);
-            display: flex;
-            gap: 10px;
-        }
-
-        .message-input input {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            background: var(--dark);
-            color: white;
-        }
-
-        .send-button {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            background: var(--accent);
-            color: white;
-            cursor: pointer;
-        }
-
-        .chat-item {
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .chat-item:hover {
-            background: var(--accent);
-        }
-
-        .chat-avatar {
-            width: 50px;
-            height: 50px;
-            background: var(--accent);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-        }
-
-        .chat-info {
-            flex: 1;
-        }
-
-        .chat-title {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .chat-last-message {
-            color: var(--light);
-            font-size: 14px;
-        }
-
-        .message {
-            margin-bottom: 15px;
-            padding: 10px;
-            background: var(--gray);
-            border-radius: 8px;
-        }
-
-        .message-sender {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .message-time {
-            font-size: 12px;
-            color: var(--light);
-            margin-top: 5px;
-        }
     </style>
 </head>
 <body>
-    <div id="loginScreen" class="login-screen">
+    <div class="login-screen" id="loginScreen">
         <div class="login-container">
             <div class="login-header">
-                <img src="https://telegram.org/img/t_logo.png" alt="Telegram Logo">
-                <h1>Telegram Web</h1>
+                <img src="telegram-logo.png" alt="Telegram">
+                <h2>Telegram Web</h2>
             </div>
-            
             <div id="phoneStep">
-                <input type="tel" id="phoneInput" class="login-input" placeholder="Phone number" required>
-                <button onclick="requestTelegramCode()" class="login-button">Next</button>
+                <input type="tel" class="login-input" id="phoneInput" placeholder="+1234567890">
+                <button class="login-button" onclick="requestTelegramCode()">Send Code</button>
             </div>
-
-            <div id="codeStep" style="display: none;">
-                <input type="text" id="codeInput" class="login-input" placeholder="Enter code" maxlength="5" required>
-                <button onclick="verifyTelegramCode()" class="login-button">Verify</button>
-            </div>
-
-            <div id="loading" class="loading-spinner" style="display: none;"></div>
-        </div>
-    </div>
-
-    <div id="mainApp" class="container" style="display: none;">
-        <div class="sidebar">
-            <div id="chatList"></div>
-        </div>
-        <div class="message-area">
-            <div id="messagesContainer" class="messages-container"></div>
-            <div class="message-input">
-                <input type="text" id="messageInput" placeholder="Type a message...">
-                <button onclick="sendMessage()" class="send-button">Send</button>
+            <div id="codeStep" class="verification-container" style="display: none;">
+                <input type="text" class="login-input" id="codeInput" placeholder="Enter code from Telegram">
+                <button class="login-button" onclick="verifyTelegramCode()">Verify</button>
+                <div id="loading" class="loading-spinner" style="display: none;"></div>
             </div>
         </div>
     </div>
 
+    <div class="container" id="mainApp" style="display: none;">
+        <!-- Основной контент приложения -->
+    </div>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-        const API_ID = '23258474';
-        const API_HASH = 'f5dd3f52675030a650ca2259f9fb79ce';
-        const BOT_TOKEN = '7893025918:AAEZCxvHKXpsiKc1NHbMg7h0hTMvLg34Nlg';
-        const API_URL = 'https://api.telegram.org/bot' + BOT_TOKEN;
-        let currentChatId = null;
+        // Конфигурация Firebase
+        const firebaseConfig = {
+            apiKey: "your-api-key",
+            authDomain: "your-domain.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-bucket.appspot.com",
+            messagingSenderId: "your-sender-id",
+            appId: "your-app-id"
+        };
+
+        // Инициализация Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Telegram API конфигурация
+        const telegramBotToken = 'YOUR_BOT_TOKEN';
+        const telegramApiUrl = `https://api.telegram.org/bot${telegramBotToken}`;
 
         async function requestTelegramCode() {
             const phone = document.getElementById('phoneInput').value;
-            if (!phone.match(/^\+[1-9]\d{1,14}$/)) {
-                alert('Please enter a valid phone number');
-                return;
-            }
-
             try {
                 document.getElementById('loading').style.display = 'block';
-                const response = await fetch(`${API_URL}/getMe`);
                 
-                if (response.ok) {
+                // Запрос к Telegram API для отправки кода
+                const response = await fetch(`${telegramApiUrl}/auth/sendCode`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        phone_number: phone,
+                        settings: {
+                            type: 'application/json'
+                        }
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.ok) {
                     document.getElementById('phoneStep').style.display = 'none';
                     document.getElementById('codeStep').style.display = 'block';
-                } else {
-                    throw new Error('Failed to connect to Telegram');
+                    localStorage.setItem('phoneHash', data.result.phone_code_hash);
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Connection error');
+                alert('Error sending code. Please try again.');
             } finally {
                 document.getElementById('loading').style.display = 'none';
             }
@@ -273,156 +356,168 @@
 
         async function verifyTelegramCode() {
             const code = document.getElementById('codeInput').value;
-            if (!code.match(/^\d{5}$/)) {
-                alert('Please enter a valid 5-digit code');
-                return;
-            }
+            const phone = document.getElementById('phoneInput').value;
+            const phoneHash = localStorage.getItem('phoneHash');
 
             try {
                 document.getElementById('loading').style.display = 'block';
-                const response = await fetch(`${API_URL}/getUpdates`);
 
-                if (response.ok) {
+                // Проверка кода через Telegram API
+                const response = await fetch(`${telegramApiUrl}/auth/signIn`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        phone_number: phone,
+                        phone_code_hash: phoneHash,
+                        phone_code: code
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.ok) {
+                    // Сохранение данных пользователя
+                    localStorage.setItem('telegramUser', JSON.stringify(data.result.user));
+                    
+                    // Инициализация WebSocket соединения
+                    initializeWebSocket();
+                    
+                    // Переход в основное приложение
                     document.getElementById('loginScreen').style.display = 'none';
                     document.getElementById('mainApp').style.display = 'flex';
-                    initializeApp();
-                } else {
-                    throw new Error('Invalid code');
+                    
+                    // Загрузка чатов и сообщений
+                    loadUserData();
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Invalid code');
+                alert('Invalid code. Please try again.');
             } finally {
                 document.getElementById('loading').style.display = 'none';
             }
         }
 
-        function initializeApp() {
-            loadChats();
-            setupEventListeners();
-        }
-
-        async function loadChats() {
-            try {
-                const response = await fetch(`${API_URL}/getUpdates`);
-                const data = await response.json();
-                
-                if (data.ok) {
-                    const chats = data.result.map(update => update.message?.chat).filter(Boolean);
-                    displayChats([...new Map(chats.map(chat => [chat.id, chat])).values()]);
-                }
-            } catch (error) {
-                console.error('Error loading chats:', error);
-            }
-        }
-
-        function displayChats(chats) {
-            const chatList = document.getElementById('chatList');
-            chatList.innerHTML = '';
+        function initializeWebSocket() {
+            const ws = new WebSocket('wss://your-websocket-server.com');
             
+            ws.onopen = () => {
+                console.log('WebSocket Connected');
+            };
+
+            ws.onmessage = (event) => {
+                const message = JSON.parse(event.data);
+                handleNewMessage(message);
+            };
+
+            ws.onerror = (error) => {
+                console.error('WebSocket Error:', error);
+            };
+
+            ws.onclose = () => {
+                console.log('WebSocket Disconnected');
+                // Попытка переподключения
+                setTimeout(initializeWebSocket, 1000);
+            };
+        }
+
+        async function loadUserData() {
+            const user = JSON.parse(localStorage.getItem('telegramUser'));
+            
+            // Загрузка чатов
+            const chatsSnapshot = await db.collection('chats')
+                .where('participants', 'array-contains', user.id)
+                .get();
+
+            const chats = [];
+            chatsSnapshot.forEach(doc => {
+                chats.push({
+                    id: doc.id,
+                    ...doc.data()
+                });
+            });
+
+            renderChats(chats);
+        }
+
+        function renderChats(chats) {
+            const chatList = document.createElement('div');
+            chatList.className = 'chat-list';
+
             chats.forEach(chat => {
-                const chatElement = document.createElement('div');
-                chatElement.className = 'chat-item';
-                chatElement.onclick = () => selectChat(chat.id);
-                chatElement.innerHTML = `
-                    <div class="chat-avatar">${chat.title?.[0] || chat.first_name?.[0] || '#'}</div>
-                    <div class="chat-info">
-                        <div class="chat-title">${chat.title || chat.first_name}</div>
-                    </div>
-                `;
+                const chatElement = createChatElement(chat);
                 chatList.appendChild(chatElement);
             });
+
+            document.querySelector('.sidebar').appendChild(chatList);
         }
 
-        function selectChat(chatId) {
-            currentChatId = chatId;
-            loadMessages(chatId);
+        function createChatElement(chat) {
+            const div = document.createElement('div');
+            div.className = 'chat-item';
+            div.innerHTML = `
+                <div class="chat-avatar"></div>
+                <div class="chat-info">
+                    <div class="chat-name">${chat.name}</div>
+                    <div class="chat-preview">${chat.lastMessage?.text || ''}</div>
+                </div>
+            `;
+            
+            div.onclick = () => openChat(chat);
+            
+            return div;
         }
 
-        async function loadMessages(chatId) {
+        function handleNewMessage(message) {
+            // Обработка входящего сообщения
+            const messagesContainer = document.querySelector('.messages-container');
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${message.fromSelf ? 'sent' : 'received'}`;
+            messageElement.textContent = message.text;
+            messagesContainer.appendChild(messageElement);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        async function sendMessage(text, chatId) {
             try {
-                const response = await fetch(`${API_URL}/getUpdates`);
-                const data = await response.json();
-                
-                if (data.ok) {
-                    const messages = data.result
-                        .filter(update => update.message?.chat.id === chatId)
-                        .map(update => update.message);
-                    displayMessages(messages);
-                }
-            } catch (error) {
-                console.error('Error loading messages:', error);
-            }
-        }
+                // Отправка сообщения через WebSocket
+                ws.send(JSON.stringify({
+                    type: 'message',
+                    chatId: chatId,
+                    text: text
+                }));
 
-        function displayMessages(messages) {
-            const container = document.getElementById('messagesContainer');
-            container.innerHTML = '';
-            
-            messages.forEach(message => {
-                const messageElement = document.createElement('div');
-                messageElement.className = 'message';
-                messageElement.innerHTML = `
-                    <div class="message-sender">${message.from.first_name}</div>
-                    <div class="message-text">${message.text}</div>
-                    <div class="message-time">${new Date(message.date * 1000).toLocaleTimeString()}</div>
-                `;
-                container.appendChild(messageElement);
-            });
-            
-            container.scrollTop = container.scrollHeight;
-        }
-
-        async function sendMessage() {
-            if (!currentChatId) {
-                alert('Please select a chat first');
-                return;
-            }
-
-            const messageInput = document.getElementById('messageInput');
-            const text = messageInput.value.trim();
-            
-            if (!text) return;
-
-            try {
-                const response = await fetch(`${API_URL}/sendMessage`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        chat_id: currentChatId,
-                        text: text
-                    })
+                // Сохранение в базу данных
+                await db.collection('messages').add({
+                    chatId: chatId,
+                    text: text,
+                    senderId: currentUser.id,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
-                if (response.ok) {
-                    messageInput.value = '';
-                    loadMessages(currentChatId);
-                }
+                // Обновление UI
+                handleNewMessage({
+                    text: text,
+                    fromSelf: true
+                });
             } catch (error) {
                 console.error('Error sending message:', error);
-                alert('Error sending message');
+                alert('Failed to send message');
             }
         }
 
-        function setupEventListeners() {
-            document.getElementById('messageInput').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') sendMessage();
-            });
-        }
-
+        // Обработчики событий UI
         document.addEventListener('DOMContentLoaded', () => {
-            fetch(`${API_URL}/getMe`)
-                .then(response => response.json())
-                .then(data => {
-                    if (!data.ok) {
-                        alert('Error connecting to Telegram');
-                    }
-                })
-                .catch(error => {
-                    console.error('Connection error:', error);
-                    alert('Unable to connect to Telegram');
-                });
+            // Проверка авторизации при загрузке
+            const user = localStorage.getItem('telegramUser');
+            if (user) {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'flex';
+                loadUserData();
+            }
         });
+
     </script>
 </body>
 </html>
