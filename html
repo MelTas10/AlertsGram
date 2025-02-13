@@ -1,51 +1,117 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ДробашникоГрам</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>AlertsGram</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0088cc, #005f8c);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 24px;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .login-button {
+            background: #ffffff;
+            color: #0088cc;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .features {
+            margin-top: 40px;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .feature {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            width: 200px;
+        }
+
+        .feature-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .logo {
+            animation: float 3s ease-in-out infinite;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <div class="logo">ДробашникоГрам</div>
-            <nav>
-                <a href="#" class="active">Чаты</a>
-                <a href="#">Контакты</a>
-                <a href="#">Настройки</a>
-            </nav>
-        </header>
-
-        <main>
-            <div class="auth-container" id="authContainer">
-                <h2>Войти в ДробашникоГрам</h2>
-                <form id="authForm">
-                    <input type="tel" placeholder="Номер телефона" id="phoneInput" required>
-                    <button type="submit">Получить код</button>
-                </form>
-                <div id="codeContainer" class="hidden">
-                    <input type="text" placeholder="Введите код из Telegram" id="codeInput">
-                    <button onclick="verifyCode()">Подтвердить</button>
-                </div>
+        <div class="logo">AlertsGram</div>
+        <div class="subtitle">Official AlertsGram on telegram client!</div>
+        <a href="#" class="login-button">Login with Telegram</a>
+        
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">🔒</div>
+                <h3>Secure</h3>
+                <p>End-to-end encryption</p>
             </div>
-
-            <div class="chat-container hidden" id="chatContainer">
-                <div class="chat-list">
-                    <!-- Список чатов будет добавляться динамически -->
-                </div>
-                <div class="chat-window">
-                    <div class="chat-messages" id="messages">
-                        <!-- Сообщения будут добавляться динамически -->
-                    </div>
-                    <div class="message-input">
-                        <input type="text" placeholder="Написать сообщение...">
-                        <button>➤</button>
-                    </div>
-                </div>
+            <div class="feature">
+                <div class="feature-icon">⚡</div>
+                <h3>Fast</h3>
+                <p>Instant messaging</p>
             </div>
-        </main>
+            <div class="feature">
+                <div class="feature-icon">🌐</div>
+                <h3>Global</h3>
+                <p>Available worldwide</p>
+            </div>
+        </div>
     </div>
-    <script src="app.js"></script>
 </body>
 </html>
